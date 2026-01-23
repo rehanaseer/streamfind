@@ -218,6 +218,4 @@ for page_shows in client.fetch_lazy(search_params, max_pages=10):
 - `get_service_names()`: Get unique service names
 - `to_dict()`: Serialize to dictionary
 
-## License
 
-MIT License

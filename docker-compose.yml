@@ -1,0 +1,112 @@
+# Docker Compose for Streaming Availability Search
+# 
+# Usage:
+#   docker-compose up              # Start web UI
+#   docker-compose up -d           # Start in background
+#   docker-compose --profile cli run cli  # Run CLI mode
+#   docker-compose down            # Stop all services
+#   docker-compose logs -f         # View logs
+
+version: '3.8'
+
+services:
+  # ============================================
+  # Web UI Service (Default)
+  # ============================================
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: streaming-search-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:5000"
+    environment:
+      # API Configuration
+      - RAPID_API_KEY=${RAPID_API_KEY:-}
+      - API_BASE_URL=${API_BASE_URL:-https://streaming-availability.p.rapidapi.com/shows/search/filters}
+      - API_HOST=${API_HOST:-streaming-availability.p.rapidapi.com}
+      
+      # Search Defaults
+      - SEARCH_COUNTRY=${SEARCH_COUNTRY:-ca}
+      - SEARCH_SHOW_TYPE=${SEARCH_SHOW_TYPE:-movie}
+      - SEARCH_GENRES=${SEARCH_GENRES:-horror}
+      - SEARCH_RATING_MIN=${SEARCH_RATING_MIN:-70}
+      - SEARCH_ORDER_BY=${SEARCH_ORDER_BY:-rating}
+      - SEARCH_ORDER_DIRECTION=${SEARCH_ORDER_DIRECTION:-desc}
+      
+      # Flask Settings
+      - FLASK_ENV=${FLASK_ENV:-production}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - streaming-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # CLI Service (On-demand)
+  # ============================================
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: streaming-search-cli
+    profiles:
+      - cli
+    stdin_open: true
+    tty: true
+    environment:
+      - RAPID_API_KEY=${RAPID_API_KEY:-}
+      - SEARCH_COUNTRY=${SEARCH_COUNTRY:-ca}
+      - SEARCH_SHOW_TYPE=${SEARCH_SHOW_TYPE:-movie}
+      - SEARCH_GENRES=${SEARCH_GENRES:-horror}
+      - SEARCH_RATING_MIN=${SEARCH_RATING_MIN:-70}
+    env_file:
+      - .env
+    command: ["python", "main.py", "--cli"]
+    networks:
+      - streaming-network
+
+  # ============================================
+  # Development Service (with hot reload)
+  # ============================================
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: streaming-search-dev
+    profiles:
+      - dev
+    ports:
+      - "${WEB_PORT:-8080}:5000"
+    environment:
+      - RAPID_API_KEY=${RAPID_API_KEY:-}
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    env_file:
+      - .env
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src:ro
+      - ./main.py:/app/main.py:ro
+    command: ["python", "main.py", "--host", "0.0.0.0", "--port", "5000"]
+    networks:
+      - streaming-network
+
+networks:
+  streaming-network:
+    driver: bridge
+    name: streaming-search-network

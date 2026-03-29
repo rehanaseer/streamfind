@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}StreamFind — Search{% endblock %}
+
+{% block nav_right %}
+<span class="count-chip" id="countChip" style="display:none"></span>
+<div class="page-controls" id="pageControls" style="display:none">
+    <button class="page-btn" id="prevBtn" title="Previous page">&#8592;</button>
+    <span class="page-label" id="pageIndicator">Page 1</span>
+    <button class="page-btn" id="nextBtn" title="Next page">&#8594;</button>
+</div>
+{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+
+<!-- ── Filter bar ─────────────────────────────────────── -->
+<div class="filter-bar">
+    <form id="searchForm">
+
+        <!-- Row 0: Title search -->
+        <div class="filter-row">
+            <span class="flabel">Title</span>
+            <input class="ftext" type="text" name="title" placeholder="Search by name — e.g. Inception, Breaking Bad…">
+            <span class="fhint">leave blank to browse by filters below</span>
+        </div>
+
+        <!-- Row 1: What & Where -->
+        <div class="filter-row">
+            <span class="flabel">Country</span>
+            <select class="fselect" name="country">
+                {% for code, name in countries.items() %}
+                <option value="{{ code }}" {{ 'selected' if config.search.country == code }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="fdivider"></div>
+
+            <span class="flabel">Type</span>
+            <select class="fselect" name="show_type">
+                <option value="">All</option>
+                {% for code, name in show_types.items() %}
+                <option value="{{ code }}" {{ 'selected' if config.search.show_type == code }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <span class="flabel">Genre</span>
+            <select class="fselect" name="genres">
+                <option value="">All</option>
+                {% for code, name in genres.items() %}
+                <option value="{{ code }}" {{ 'selected' if config.search.genres == code }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <span class="flabel">Service</span>
+            <select class="fselect" name="services">
+                <option value="">All</option>
+                {% for code, name in streaming_services.items() %}
+                <option value="{{ code }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <span class="flabel">Made in</span>
+            <select class="fselect" name="production_country">
+                <option value="">Any</option>
+                {% for code, name in production_countries.items() %}
+                <option value="{{ code }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Row 2: Refine & Sort -->
+        <div class="filter-row">
+            <span class="flabel">Min Rating</span>
+            <input class="fnumber" type="number" name="rating_min"
+                   min="0" max="100" value="{{ config.search.rating_min }}">
+
+            <div class="fdivider"></div>
+
+            <span class="flabel">Sort</span>
+            <select class="fselect" name="order_by">
+                {% for code, name in order_options.items() %}
+                <option value="{{ code }}" {{ 'selected' if config.search.order_by == code }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <select class="fselect" name="order_direction">
+                {% for code, name in direction_options.items() %}
+                <option value="{{ code }}" {{ 'selected' if config.search.order_direction == code }}>{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="filter-row-spacer"></div>
+
+            <button type="button" class="settings-btn" id="settingsToggle" title="Rating settings">&#9881; Ratings</button>
+            <button type="submit" class="btn-search" id="searchBtn">Search</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- ── Settings panel ─────────────────────────────────── -->
+<div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">Rating Weights</div>
+
+    <!-- Profile presets -->
+    <div class="profile-row">
+        <button class="profile-btn" data-profile="critically_acclaimed" title="Prioritises professional critic scores (RT Critics, Metacritic)">Critics</button>
+        <button class="profile-btn" data-profile="crowd_pleaser" title="Prioritises audience scores (IMDB, RT Audience, TMDB)">Audience</button>
+        <button class="profile-btn" data-profile="balanced" title="Equal weight across all sources">Balanced</button>
+        <button class="profile-btn active" data-profile="custom">Custom</button>
+    </div>
+
+    <!-- Critic sources -->
+    <div class="weight-section-label">Critics</div>
+    <div class="weight-row">
+        <span class="weight-label">RT Critics</span>
+        <input type="range" class="weight-slider" id="w-rt_critics" min="0" max="1" step="0.05" value="0.2">
+        <span class="weight-value" id="wv-rt_critics">0.20</span>
+    </div>
+    <div class="weight-row">
+        <span class="weight-label">Metacritic</span>
+        <input type="range" class="weight-slider" id="w-metacritic" min="0" max="1" step="0.05" value="0.15">
+        <span class="weight-value" id="wv-metacritic">0.15</span>
+    </div>
+
+    <!-- Audience sources -->
+    <div class="weight-section-label">Audience</div>
+    <div class="weight-row">
+        <span class="weight-label">IMDB</span>
+        <input type="range" class="weight-slider" id="w-imdb" min="0" max="1" step="0.05" value="0.25">
+        <span class="weight-value" id="wv-imdb">0.25</span>
+    </div>
+    <div class="weight-row">
+        <span class="weight-label">RT Audience</span>
+        <input type="range" class="weight-slider" id="w-rt_audience" min="0" max="1" step="0.05" value="0.2">
+        <span class="weight-value" id="wv-rt_audience">0.20</span>
+    </div>
+    <div class="weight-row">
+        <span class="weight-label">TMDB</span>
+        <input type="range" class="weight-slider" id="w-tmdb" min="0" max="1" step="0.05" value="0.1">
+        <span class="weight-value" id="wv-tmdb">0.10</span>
+    </div>
+
+    <!-- Other -->
+    <div class="weight-section-label">Other</div>
+    <div class="weight-row">
+        <span class="weight-label">Streaming</span>
+        <input type="range" class="weight-slider" id="w-streaming" min="0" max="1" step="0.05" value="0.1">
+        <span class="weight-value" id="wv-streaming">0.10</span>
+    </div>
+
+    <div class="visible-ratings">
+        <div class="visible-ratings-title">Show rating sources on cards</div>
+        <div class="rating-toggle-row" id="ratingToggles">
+            <span class="rating-toggle active" data-source="imdb">IMDB</span>
+            <span class="rating-toggle active" data-source="rt_critics">RT Critics</span>
+            <span class="rating-toggle active" data-source="rt_audience">RT Audience</span>
+            <span class="rating-toggle active" data-source="metacritic">Metacritic</span>
+            <span class="rating-toggle active" data-source="tmdb">TMDB</span>
+        </div>
+    </div>
+
+    <button class="settings-save-btn" id="saveSettings">Save &amp; Apply</button>
+</div>
+
+<!-- ── Results ────────────────────────────────────────── -->
+<div id="resultsContainer">
+    <div class="hero">
+        <div class="hero-eyebrow">Streaming Search</div>
+        <div class="hero-title">Find what to watch tonight</div>
+        <div class="hero-sub">Search movies and shows across every streaming platform — filtered exactly how you want.</div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/tags.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ratings.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}

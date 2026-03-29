@@ -58,13 +58,27 @@ Environment Variables:
         action='store_true',
         help='Create a template .env file and exit'
     )
-    
+
+    parser.add_argument(
+        '--init-db',
+        action='store_true',
+        help='Initialize the database (create tables, seed defaults) and exit'
+    )
+
     args = parser.parse_args()
-    
+
     if args.create_env:
         from src.config import create_env_template
         create_env_template()
         print("\nEdit .env.template with your settings, then rename to .env")
+        return
+
+    if args.init_db:
+        from src.db import init_db
+        init_db()
+        db_path = __import__('os').getenv('DB_PATH', 'data/streamfind.db')
+        print(f"\nDatabase initialized at: {db_path}")
+        print("Tables created: shows_cache, user_tags, user_preferences, recommendation_cache")
         return
     
     if args.cli:

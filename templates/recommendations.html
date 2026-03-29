@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}StreamFind — For You{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-title">For You</div>
+    {% if liked_titles %}
+    <div class="page-header-sub">
+        Because you liked:
+        {% for t in liked_titles[:5] %}
+        <strong>{{ t }}</strong>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+        {% if liked_count > 5 %} and {{ liked_count - 5 }} more{% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if not enough_likes %}
+<div class="hero">
+    <div class="hero-title" style="font-size:1.4rem">Not enough data yet</div>
+    <div class="hero-sub">
+        Like at least 3 movies or shows to get personalized recommendations.
+        You've liked {{ liked_count }} so far.
+    </div>
+</div>
+
+{% elif shows %}
+<div class="shelf-wrap">
+    <div class="shelf-track">
+        {% for show in shows %}
+        <div class="card">
+            <div class="card-poster">
+                {% if show.poster_url %}
+                <img src="{{ show.poster_url }}" alt="{{ show.title }}" loading="lazy">
+                {% else %}
+                <div class="card-no-img">🎬</div>
+                {% endif %}
+
+                {% if show.similarity_score %}
+                <div class="sim-badge">{{ (show.similarity_score * 100)|round|int }}% match</div>
+                {% endif %}
+
+                {% if show.weighted_rating %}
+                <div class="card-rating {% if show.weighted_rating >= 70 %}high{% elif show.weighted_rating >= 50 %}mid{% else %}low{% endif %}">
+                    ★ {{ show.weighted_rating }}
+                </div>
+                {% elif show.rating %}
+                <div class="card-rating {% if show.rating >= 70 %}high{% elif show.rating >= 50 %}mid{% else %}low{% endif %}">
+                    ★ {{ show.rating }}
+                </div>
+                {% endif %}
+
+                <!-- Tag buttons -->
+                <div class="card-tags">
+                    <button class="tag-btn tag-like {% if 'liked' in (show.current_tags or []) %}tag-active{% endif %}"
+                            data-imdb-id="{{ show.imdb_id }}"
+                            data-title="{{ show.title }}"
+                            data-poster="{{ show.poster_url or '' }}"
+                            title="Like">♥</button>
+                    <button class="tag-btn tag-dislike {% if 'disliked' in (show.current_tags or []) %}tag-active{% endif %}"
+                            data-imdb-id="{{ show.imdb_id }}"
+                            data-title="{{ show.title }}"
+                            data-poster="{{ show.poster_url or '' }}"
+                            title="Dislike">✕</button>
+                    <button class="tag-btn tag-watchlist {% if 'watchlist' in (show.current_tags or []) %}tag-active{% endif %}"
+                            data-imdb-id="{{ show.imdb_id }}"
+                            data-title="{{ show.title }}"
+                            data-poster="{{ show.poster_url or '' }}"
+                            title="Add to Watchlist">⊕</button>
+                </div>
+
+                <div class="card-overlay">
+                    <div class="card-ov-title">{{ show.title }}</div>
+                    <div class="card-ov-meta">
+                        {{ show.release_year or '' }}
+                        {% if show.genres %}· {{ show.genres[:2]|join(' · ') }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-label">{{ show.title }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="hero">
+    <div class="hero-title" style="font-size:1.4rem">No recommendations yet</div>
+    <div class="hero-sub">
+        We're still learning your taste. Keep liking movies to improve recommendations.
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/tags.js') }}"></script>
+{% endblock %}

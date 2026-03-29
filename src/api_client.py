@@ -264,6 +264,35 @@ class StreamingAPIClient:
         
         return shows, next_cursor, has_more
     
+    def search_by_title(
+        self,
+        title: str,
+        country: str = "ca",
+        show_type: str = "",
+        series_granularity: str = "show",
+        output_language: str = "en",
+    ) -> list[Show]:
+        """Search for shows by title using the title search endpoint."""
+        title_url = self.config.base_url.replace(
+            "/shows/search/filters", "/shows/search/title"
+        )
+        params: dict = {
+            "title": title,
+            "country": country,
+            "series_granularity": series_granularity,
+            "output_language": output_language,
+        }
+        if show_type:
+            params["show_type"] = show_type
+
+        response = self._session.get(title_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        # Title endpoint returns a list directly
+        shows_data = data if isinstance(data, list) else data.get("shows", [])
+        return [Show.from_api_response(s, country) for s in shows_data]
+
     def test_connection(self) -> tuple[bool, str]:
         """
         Test the API connection.

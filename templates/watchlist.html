@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}StreamFind — Watchlist{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-title">Your Watchlist</div>
+    {% if shows %}
+    <div class="page-header-sub">{{ shows|length }} title{{ 's' if shows|length != 1 }} saved</div>
+    {% endif %}
+</div>
+
+{% if shows %}
+<div class="shelf-wrap">
+    <div class="shelf-track" id="watchlistGrid">
+        {% for show in shows %}
+        <div class="card" id="card-{{ show.imdb_id }}">
+            <div class="card-poster">
+                {% if show.poster_url %}
+                <img src="{{ show.poster_url }}" alt="{{ show.title }}" loading="lazy">
+                {% else %}
+                <div class="card-no-img">🎬</div>
+                {% endif %}
+
+                {% if show.weighted_rating %}
+                <div class="card-rating {% if show.weighted_rating >= 70 %}high{% elif show.weighted_rating >= 50 %}mid{% else %}low{% endif %}">
+                    ★ {{ show.weighted_rating }}
+                </div>
+                {% elif show.rating %}
+                <div class="card-rating {% if show.rating >= 70 %}high{% elif show.rating >= 50 %}mid{% else %}low{% endif %}">
+                    ★ {{ show.rating }}
+                </div>
+                {% endif %}
+
+                <div class="card-overlay">
+                    <div class="card-ov-title">{{ show.title }}</div>
+                    <div class="card-ov-meta">
+                        {{ show.release_year or '' }}
+                        {% if show.genres %}· {{ show.genres[:2]|join(' · ') }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-label">{{ show.title }}</div>
+            <div class="card-actions">
+                <button class="card-action-btn remove-btn"
+                        onclick="removeFromWatchlist('{{ show.imdb_id }}')">
+                    Remove
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="hero">
+    <div class="hero-title" style="font-size:1.4rem">Your watchlist is empty</div>
+    <div class="hero-sub">
+        Search for movies and shows, then click the bookmark icon to save them here.
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function removeFromWatchlist(imdbId) {
+    const card = document.getElementById('card-' + imdbId);
+    if (!card) return;
+    card.style.opacity = '0.4';
+    try {
+        await fetch('/api/tag/' + imdbId + '/watchlist', { method: 'DELETE' });
+        card.remove();
+        const grid = document.getElementById('watchlistGrid');
+        if (grid && grid.children.length === 0) {
+            location.reload();
+        }
+    } catch {
+        card.style.opacity = '1';
+    }
+}
+</script>
+{% endblock %}

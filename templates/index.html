@@ -201,12 +201,52 @@
     const form     = document.getElementById('searchForm');
     if (!toggle || !drawer || !backdrop) return;
 
-    function openDrawer()  { drawer.classList.add('open'); backdrop.classList.add('open'); toggle.classList.add('active'); }
-    function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); toggle.classList.remove('active'); }
+    const mobileQuery = window.matchMedia('(max-width: 640px)');
+
+    // Only hide the drawer on mobile — on desktop it is always visible as filter rows
+    if (mobileQuery.matches) {
+        drawer.style.display = 'none';
+    }
+
+    // When viewport crosses the breakpoint, restore correct state
+    mobileQuery.addEventListener('change', (e) => {
+        if (!e.matches) {
+            // Switched to desktop: clear inline style so CSS shows it normally
+            drawer.style.display = '';
+            drawer.classList.remove('open');
+            backdrop.classList.remove('open');
+            toggle.classList.remove('active');
+        } else {
+            // Switched to mobile: hide if not open
+            if (!drawer.classList.contains('open')) {
+                drawer.style.display = 'none';
+            }
+        }
+    });
+
+    function openDrawer() {
+        drawer.style.display = 'flex';
+        // Double rAF: first frame registers display change, second starts transition
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            drawer.classList.add('open');
+            backdrop.classList.add('open');
+            toggle.classList.add('active');
+        }));
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+        toggle.classList.remove('active');
+        drawer.addEventListener('transitionend', function hide() {
+            if (!drawer.classList.contains('open')) drawer.style.display = 'none';
+            drawer.removeEventListener('transitionend', hide);
+        }, { once: true });
+    }
 
     toggle.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
     backdrop.addEventListener('click', closeDrawer);
-    form.addEventListener('submit', closeDrawer);
+    form.addEventListener('submit', () => { if (mobileQuery.matches) closeDrawer(); });
 })();
 </script>
 {% endblock %}

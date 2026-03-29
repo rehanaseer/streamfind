@@ -19,86 +19,99 @@
 <div class="filter-bar">
     <form id="searchForm">
 
-        <!-- Row 0: Title search -->
-        <div class="filter-row">
+        <!-- Row 0: Title search (always visible, compact on mobile) -->
+        <div class="filter-row filter-row-title">
             <span class="flabel">Title</span>
             <input class="ftext" type="text" name="title" placeholder="Search by name — e.g. Inception, Breaking Bad…">
             <span class="fhint">leave blank to browse by filters below</span>
+            <button type="button" class="filter-toggle-btn" id="filterToggle">⊞ Filters</button>
+            <button type="submit" class="btn-search btn-search-mobile">Search</button>
         </div>
 
-        <!-- Row 1: What & Where -->
-        <div class="filter-row">
-            <span class="flabel">Country</span>
-            <select class="fselect" name="country">
-                {% for code, name in countries.items() %}
-                <option value="{{ code }}" {{ 'selected' if config.search.country == code }}>{{ name }}</option>
-                {% endfor %}
-            </select>
+        <!-- Advanced filters: desktop = inline rows, mobile = bottom sheet drawer -->
+        <div class="filter-advanced" id="filterAdvanced">
+            <div class="filter-drawer-handle"></div>
 
-            <div class="fdivider"></div>
+            <!-- Row 1: What & Where -->
+            <div class="filter-row">
+                <span class="flabel">Country</span>
+                <select class="fselect" name="country">
+                    {% for code, name in countries.items() %}
+                    <option value="{{ code }}" {{ 'selected' if config.search.country == code }}>{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-            <span class="flabel">Type</span>
-            <select class="fselect" name="show_type">
-                <option value="">All</option>
-                {% for code, name in show_types.items() %}
-                <option value="{{ code }}" {{ 'selected' if config.search.show_type == code }}>{{ name }}</option>
-                {% endfor %}
-            </select>
+                <div class="fdivider"></div>
 
-            <span class="flabel">Genre</span>
-            <select class="fselect" name="genres">
-                <option value="">All</option>
-                {% for code, name in genres.items() %}
-                <option value="{{ code }}" {{ 'selected' if config.search.genres == code }}>{{ name }}</option>
-                {% endfor %}
-            </select>
+                <span class="flabel">Type</span>
+                <select class="fselect" name="show_type">
+                    <option value="">All</option>
+                    {% for code, name in show_types.items() %}
+                    <option value="{{ code }}" {{ 'selected' if config.search.show_type == code }}>{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-            <span class="flabel">Service</span>
-            <select class="fselect" name="services">
-                <option value="">All</option>
-                {% for code, name in streaming_services.items() %}
-                <option value="{{ code }}">{{ name }}</option>
-                {% endfor %}
-            </select>
+                <span class="flabel">Genre</span>
+                <select class="fselect" name="genres">
+                    <option value="">All</option>
+                    {% for code, name in genres.items() %}
+                    <option value="{{ code }}" {{ 'selected' if config.search.genres == code }}>{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-            <span class="flabel">Made in</span>
-            <select class="fselect" name="production_country">
-                <option value="">Any</option>
-                {% for code, name in production_countries.items() %}
-                <option value="{{ code }}">{{ name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+                <span class="flabel">Service</span>
+                <select class="fselect" name="services">
+                    <option value="">All</option>
+                    {% for code, name in streaming_services.items() %}
+                    <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-        <!-- Row 2: Refine & Sort -->
-        <div class="filter-row">
-            <span class="flabel">Min Rating</span>
-            <input class="fnumber" type="number" name="rating_min"
-                   min="0" max="100" value="{{ config.search.rating_min }}">
+                <span class="flabel">Made in</span>
+                <select class="fselect" name="production_country">
+                    <option value="">Any</option>
+                    {% for code, name in production_countries.items() %}
+                    <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <div class="fdivider"></div>
+            <!-- Row 2: Refine & Sort -->
+            <div class="filter-row">
+                <span class="flabel">Min Rating</span>
+                <input class="fnumber" type="number" name="rating_min"
+                       min="0" max="100" value="{{ config.search.rating_min }}">
 
-            <span class="flabel">Sort</span>
-            <select class="fselect" name="order_by">
-                {% for code, name in order_options.items() %}
-                <option value="{{ code }}" {{ 'selected' if config.search.order_by == code }}>{{ name }}</option>
-                {% endfor %}
-            </select>
+                <div class="fdivider"></div>
 
-            <select class="fselect" name="order_direction">
-                {% for code, name in direction_options.items() %}
-                <option value="{{ code }}" {{ 'selected' if config.search.order_direction == code }}>{{ name }}</option>
-                {% endfor %}
-            </select>
+                <span class="flabel">Sort</span>
+                <select class="fselect" name="order_by">
+                    {% for code, name in order_options.items() %}
+                    <option value="{{ code }}" {{ 'selected' if config.search.order_by == code }}>{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-            <div class="filter-row-spacer"></div>
+                <select class="fselect" name="order_direction">
+                    {% for code, name in direction_options.items() %}
+                    <option value="{{ code }}" {{ 'selected' if config.search.order_direction == code }}>{{ name }}</option>
+                    {% endfor %}
+                </select>
 
-            <button type="button" class="settings-btn" id="settingsToggle" title="Rating settings">&#9881; Ratings</button>
-            <button type="submit" class="btn-search" id="searchBtn">Search</button>
+                <div class="filter-row-spacer"></div>
+
+                <button type="button" class="settings-btn" id="settingsToggle" title="Rating settings">&#9881; Ratings</button>
+                <button type="submit" class="btn-search btn-search-desktop" id="searchBtn">Search</button>
+            </div>
+
+            <!-- Mobile only: apply button at bottom of drawer -->
+            <button type="submit" class="filter-drawer-apply">Apply &amp; Search</button>
         </div>
 
     </form>
 </div>
+
+<!-- Backdrop for mobile drawer -->
+<div class="filter-backdrop" id="filterBackdrop"></div>
 
 <!-- ── Settings panel ─────────────────────────────────── -->
 <div class="settings-panel" id="settingsPanel">
@@ -180,4 +193,20 @@
 <script src="{{ url_for('static', filename='js/tags.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ratings.js') }}"></script>
 <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script>
+(function () {
+    const toggle   = document.getElementById('filterToggle');
+    const drawer   = document.getElementById('filterAdvanced');
+    const backdrop = document.getElementById('filterBackdrop');
+    const form     = document.getElementById('searchForm');
+    if (!toggle || !drawer || !backdrop) return;
+
+    function openDrawer()  { drawer.classList.add('open'); backdrop.classList.add('open'); toggle.classList.add('active'); }
+    function closeDrawer() { drawer.classList.remove('open'); backdrop.classList.remove('open'); toggle.classList.remove('active'); }
+
+    toggle.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
+    backdrop.addEventListener('click', closeDrawer);
+    form.addEventListener('submit', closeDrawer);
+})();
+</script>
 {% endblock %}

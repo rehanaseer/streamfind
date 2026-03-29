@@ -7,3 +7,4 @@ venv/
 .DS_Store
 *.db
 data/*.db
+*StreamFind_Technical_Report*

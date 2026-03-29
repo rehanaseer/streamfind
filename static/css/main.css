@@ -31,7 +31,7 @@ body {
     position: fixed;
     top: 0; left: 0; right: 0;
     height: var(--nav-h);
-    z-index: 200;
+    z-index: 500;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -134,7 +134,7 @@ body {
     top: var(--nav-h);
     left: 0; right: 0;
     height: var(--bar-h);
-    z-index: 199;
+    z-index: 400;
     background: #ffffff;
     border-bottom: 1px solid #e5e5e5;
     display: flex;
@@ -292,7 +292,7 @@ body {
     border: 1px solid #e5e5e5;
     border-radius: 10px;
     padding: 1.25rem;
-    z-index: 198;
+    z-index: 450;
     box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     display: none;
 }
@@ -799,17 +799,10 @@ body {
         max-height: 72vh;
         overflow-y: auto;
         transform: translateY(100%);
-        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-                    visibility 0s linear 0.3s;
-        pointer-events: none;
-        visibility: hidden;
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
     }
     .filter-advanced.open {
         transform: translateY(0);
-        pointer-events: auto;
-        visibility: visible;
-        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-                    visibility 0s linear 0s;
     }
 
     /* Drag handle pill at top of drawer */
@@ -826,17 +819,21 @@ body {
     /* Backdrop visible */
     .filter-backdrop { display: block; }
 
-    /* Rows inside drawer scroll horizontally */
+    /* Rows inside drawer wrap to multiple lines */
     .filter-advanced .filter-row {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 2px;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.5rem;
     }
-    .filter-advanced .filter-row::-webkit-scrollbar { display: none; }
 
-    /* Row spacer shouldn't push buttons to far right inside drawer */
+    /* Hide labels and dividers so label+select pairs don't split across lines */
+    .filter-advanced .flabel  { display: none; }
+    .filter-advanced .fdivider { display: none; }
+
+    /* Selects fill ~half the row width (2 per row) */
+    .filter-advanced .fselect { flex: 1 1 130px; min-width: 100px; }
+    .filter-advanced .fnumber { flex: 0 0 72px; }
+
+    /* Row spacer not needed inside wrapping drawer */
     .filter-advanced .filter-row-spacer { display: none; }
     .filter-advanced .settings-btn { margin-left: auto; }
 

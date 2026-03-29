@@ -4,13 +4,12 @@ import os
 # Ensure the project root is on the path so src/* imports resolve
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from dotenv import load_dotenv
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
+# Force SQLite into /tmp before dotenv or any other import can set DB_PATH,
+# since Vercel's filesystem is read-only everywhere except /tmp.
+os.environ["DB_PATH"] = "/tmp/streamfind.db"
 
-# Vercel's filesystem is read-only except /tmp — redirect the DB there if no
-# explicit DB_PATH has been set via environment variables.
-if not os.environ.get("DB_PATH"):
-    os.environ["DB_PATH"] = "/tmp/streamfind.db"
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"), override=False)
 
 from src.db import init_db
 init_db()

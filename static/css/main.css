@@ -711,6 +711,51 @@ body {
     color: #fff;
 }
 
+/* ══ MOBILE FILTER DRAWER — static styles (hidden on desktop) ═════════════ */
+
+.filter-toggle-btn {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f0f0f0;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.28rem 0.7rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+.filter-toggle-btn:hover { background: #e5e5e5; color: var(--text); }
+.filter-toggle-btn.active {
+    background: rgba(250,50,10,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-search-mobile  { display: none; }
+.filter-drawer-apply { display: none; }
+.filter-drawer-handle { display: none; }
+
+.filter-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 299;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.filter-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* ══ TOUCH DEVICES — always show tag buttons ════════════ */
 @media (hover: none) {
     .card-tags { opacity: 1; }
@@ -720,63 +765,103 @@ body {
 @media (max-width: 640px) {
     :root {
         --gutter: 12px;
-        --bar-h: 148px;
+        --bar-h: 56px;
     }
 
     /* ── Nav ── */
     .logo { font-size: 1.4rem; }
-
-    .nav-link {
-        font-size: 0.72rem;
-        padding: 0.25rem 0.45rem;
-    }
-
-    /* Hide result count — too tight in nav on mobile */
+    .nav-link { font-size: 0.72rem; padding: 0.25rem 0.45rem; }
     .count-chip { display: none; }
+    .page-label { font-size: 0.62rem; min-width: 2rem; }
+    .page-btn { width: 26px; height: 26px; font-size: 0.85rem; }
 
-    .page-label {
-        font-size: 0.62rem;
-        min-width: 2rem;
+    /* ── Compact title row ── */
+    .fhint { display: none; }
+    .filter-toggle-btn { display: flex; }
+    .btn-search-mobile { display: inline-flex; }
+    .btn-search-desktop { display: none; }
+
+    /* ── Bottom sheet drawer ── */
+    .filter-advanced {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+        z-index: 300;
+        padding: 0 var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 1rem);
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        max-height: 72vh;
+        overflow-y: auto;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .filter-advanced.open { transform: translateY(0); }
+
+    /* Drag handle pill at top of drawer */
+    .filter-drawer-handle {
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: #ddd;
+        border-radius: 2px;
+        margin: 0.65rem auto 0.25rem;
+        flex-shrink: 0;
     }
 
-    .page-btn {
-        width: 26px;
-        height: 26px;
-        font-size: 0.85rem;
-    }
+    /* Backdrop visible */
+    .filter-backdrop { display: block; }
 
-    /* ── Filter bar rows: scroll horizontally instead of wrapping ── */
-    .filter-row {
+    /* Rows inside drawer scroll horizontally */
+    .filter-advanced .filter-row {
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         padding-bottom: 2px;
     }
-    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-advanced .filter-row::-webkit-scrollbar { display: none; }
 
-    /* Hide the "leave blank to browse…" hint — wastes space on mobile */
-    .fhint { display: none; }
+    /* Row spacer shouldn't push buttons to far right inside drawer */
+    .filter-advanced .filter-row-spacer { display: none; }
+    .filter-advanced .settings-btn { margin-left: auto; }
 
-    /* Slightly tighter inputs */
-    .fselect, .fnumber, .ftext {
-        font-size: 0.72rem;
+    /* Apply button */
+    .filter-drawer-apply {
+        display: block;
+        width: 100%;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 100px;
+        font-family: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.65rem;
+        cursor: pointer;
+        transition: opacity 0.15s;
     }
+    .filter-drawer-apply:hover { opacity: 0.88; }
 
-    /* ── Settings panel: full width ── */
+    /* Settings panel: full width on mobile */
     .settings-panel {
         left: var(--gutter);
         right: var(--gutter);
         width: auto;
     }
 
-    /* ── Cards: smaller min column so 3 fit comfortably ── */
+    /* ── Cards ── */
     .shelf-track {
         grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
         gap: 6px;
     }
-
-    /* ── Shelf padding ── */
     .shelf-wrap { padding: 1.25rem var(--gutter) 4rem; }
 
     /* ── Page header (watchlist / recs) ── */

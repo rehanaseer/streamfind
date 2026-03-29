@@ -710,3 +710,76 @@ body {
     border-radius: 3px;
     color: #fff;
 }
+
+/* ══ TOUCH DEVICES — always show tag buttons ════════════ */
+@media (hover: none) {
+    .card-tags { opacity: 1; }
+}
+
+/* ══ MOBILE ≤ 640px ═════════════════════════════════════ */
+@media (max-width: 640px) {
+    :root {
+        --gutter: 12px;
+        --bar-h: 148px;
+    }
+
+    /* ── Nav ── */
+    .logo { font-size: 1.4rem; }
+
+    .nav-link {
+        font-size: 0.72rem;
+        padding: 0.25rem 0.45rem;
+    }
+
+    /* Hide result count — too tight in nav on mobile */
+    .count-chip { display: none; }
+
+    .page-label {
+        font-size: 0.62rem;
+        min-width: 2rem;
+    }
+
+    .page-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 0.85rem;
+    }
+
+    /* ── Filter bar rows: scroll horizontally instead of wrapping ── */
+    .filter-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+
+    /* Hide the "leave blank to browse…" hint — wastes space on mobile */
+    .fhint { display: none; }
+
+    /* Slightly tighter inputs */
+    .fselect, .fnumber, .ftext {
+        font-size: 0.72rem;
+    }
+
+    /* ── Settings panel: full width ── */
+    .settings-panel {
+        left: var(--gutter);
+        right: var(--gutter);
+        width: auto;
+    }
+
+    /* ── Cards: smaller min column so 3 fit comfortably ── */
+    .shelf-track {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 6px;
+    }
+
+    /* ── Shelf padding ── */
+    .shelf-wrap { padding: 1.25rem var(--gutter) 4rem; }
+
+    /* ── Page header (watchlist / recs) ── */
+    .page-header { padding: 1.25rem var(--gutter) 0.5rem; }
+    .page-header-title { font-size: 1.15rem; }
+}

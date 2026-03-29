@@ -12,6 +12,15 @@
 
 .card:hover .card-tags { opacity: 1; }
 
+@media (max-width: 640px) {
+    /* Smaller tag buttons on mobile so they don't crowd the card */
+    .tag-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.55rem;
+    }
+}
+
 .tag-btn {
     width: 24px;
     height: 24px;

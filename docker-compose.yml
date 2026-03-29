@@ -27,19 +27,29 @@ services:
       - RAPID_API_KEY=${RAPID_API_KEY:-}
       - API_BASE_URL=${API_BASE_URL:-https://streaming-availability.p.rapidapi.com/shows/search/filters}
       - API_HOST=${API_HOST:-streaming-availability.p.rapidapi.com}
-      
+
+      # Rating Enrichment APIs
+      - OMDB_API_KEY=${OMDB_API_KEY:-}
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+
+      # Database
+      - DB_PATH=/app/data/streamfind.db
+      - RATING_CACHE_TTL_DAYS=${RATING_CACHE_TTL_DAYS:-7}
+
       # Search Defaults
       - SEARCH_COUNTRY=${SEARCH_COUNTRY:-ca}
       - SEARCH_SHOW_TYPE=${SEARCH_SHOW_TYPE:-movie}
       - SEARCH_GENRES=${SEARCH_GENRES:-horror}
       - SEARCH_RATING_MIN=${SEARCH_RATING_MIN:-70}
-      - SEARCH_ORDER_BY=${SEARCH_ORDER_BY:-rating}
+      - SEARCH_ORDER_BY=${SEARCH_ORDER_BY:-weighted_rating}
       - SEARCH_ORDER_DIRECTION=${SEARCH_ORDER_DIRECTION:-desc}
-      
+
       # Flask Settings
       - FLASK_ENV=${FLASK_ENV:-production}
     env_file:
       - .env
+    volumes:
+      - streamfind-data:/app/data
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/', timeout=5)"]
       interval: 30s
@@ -105,6 +115,10 @@ services:
     command: ["python", "main.py", "--host", "0.0.0.0", "--port", "5000"]
     networks:
       - streaming-network
+
+volumes:
+  streamfind-data:
+    name: streamfind-data
 
 networks:
   streaming-network:

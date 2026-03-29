@@ -1,0 +1,84 @@
+/* ══ TAG BUTTONS ════════════════════════════════════════ */
+
+.card-tags {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    display: flex;
+    gap: 0.2rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.card:hover .card-tags { opacity: 1; }
+
+.tag-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, transform 0.12s;
+    flex-shrink: 0;
+}
+
+.tag-btn:hover { transform: scale(1.15); background: rgba(0,0,0,0.8); }
+
+/* Active states */
+.tag-btn.tag-like.tag-active      { color: #f472b6; background: rgba(244,114,182,0.35); }
+.tag-btn.tag-dislike.tag-active   { color: #ff7b7b; background: rgba(248,113,113,0.35); }
+.tag-btn.tag-watchlist.tag-active { color: #60a5fa; background: rgba(96,165,250,0.35); }
+
+/* ══ TAG BADGES (for watchlist/recommendations pages) ═══ */
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+}
+
+.tag-badge-liked     { background: rgba(244,114,182,0.15); color: #c0266a; border: 1px solid rgba(244,114,182,0.35); }
+.tag-badge-disliked  { background: rgba(250,50,10,0.1);    color: #b82200; border: 1px solid rgba(250,50,10,0.25); }
+.tag-badge-watchlist { background: rgba(30,100,220,0.1);   color: #1050b8; border: 1px solid rgba(30,100,220,0.2); }
+
+/* ══ WATCHLIST PAGE CARD ACTIONS ════════════════════════ */
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    padding: 0.3rem 0.4rem 0.4rem;
+}
+
+.card-action-btn {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    transition: background 0.12s, color 0.12s;
+}
+
+.card-action-btn:hover {
+    background: #f0f0f0;
+    color: var(--text-dim);
+}
+
+.card-action-btn.remove-btn:hover {
+    background: rgba(250,50,10,0.08);
+    color: #d93b1a;
+}

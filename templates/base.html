@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StreamFind{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tags.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Nav ───────────────────────────────────────────── -->
+<nav class="nav">
+    <a href="/" class="logo">StreamFind</a>
+    <div class="nav-links">
+        <a href="/" class="nav-link {% if active_page == 'search' %}active{% endif %}">Search</a>
+        <a href="/watchlist" class="nav-link {% if active_page == 'watchlist' %}active{% endif %}">
+            Watchlist
+            {% if watchlist_count %}
+            <span class="watchlist-badge">{{ watchlist_count }}</span>
+            {% endif %}
+        </a>
+        <a href="/recommendations" class="nav-link {% if active_page == 'recommendations' %}active{% endif %}">For You</a>
+    </div>
+    <div class="nav-right">
+        {% block nav_right %}{% endblock %}
+    </div>
+</nav>
+
+<!-- ── Main content ───────────────────────────────────── -->
+<main class="content">
+    {% block content %}{% endblock %}
+</main>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
